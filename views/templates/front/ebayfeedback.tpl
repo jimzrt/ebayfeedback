@@ -7,7 +7,7 @@ color: #414141;
 font-weight: normal;
 letter-spacing: 0.1em;
 ">
-            EBAY BEWERTUNGEN {$feedback_lastCache}
+            EBAY BEWERTUNGEN
         </h6>
         <div class="feedback_container">
             {foreach from=$feedback_ratings item=feedback_rating}

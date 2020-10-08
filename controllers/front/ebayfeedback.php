@@ -107,7 +107,7 @@ class EbayfeedbackEbayfeedbackModuleFrontController extends ModuleFrontControlle
             'feedback_bgColor' => Configuration::get('EBAYFEEDBACK_BGCOLOR'),
             'feedback_maxWidth' => Configuration::get('EBAYFEEDBACK_MAXWIDTH'),
             'feedback_show_comments' => Configuration::get('EBAYFEEDBACK_COMMENTS'),
-            'feedback_lastCache' => Configuration::get('EBAYFEEDBACK_LASTCACHE')
+           // 'feedback_lastCache' => Configuration::get('EBAYFEEDBACK_LASTCACHE')
 
         ]);
 
