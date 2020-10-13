@@ -30,7 +30,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 
-class Ebayfeedback extends Module implements PrestaShop\PrestaShop\Core\Module\WidgetInterface
+class Ebayfeedback extends Module
 {
     protected $config_form = false;
 
@@ -55,6 +55,13 @@ class Ebayfeedback extends Module implements PrestaShop\PrestaShop\Core\Module\W
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
     }
 
+    function __call($func, $params){
+       
+        if($this->stringStartsWith(strtolower($func), "hookdisplay")){
+            return $this->renderWidget($func, $params);
+        }
+    }
+
     /**
      * Don't forget to create update methods if needed:
      * http://doc.prestashop.com/display/PS16/Enabling+the+Auto-Update
@@ -71,7 +78,7 @@ class Ebayfeedback extends Module implements PrestaShop\PrestaShop\Core\Module\W
         $this->postProcess(false);
 
         return parent::install() &&
-            $this->registerHook('Header') &&
+            $this->registerHook('displayHeader') &&
             $this->registerHook('displayFooter') &&
             $this->registerHook('displayHome') &&
             $this->registerHook('displayTop') &&
@@ -163,10 +170,16 @@ class Ebayfeedback extends Module implements PrestaShop\PrestaShop\Core\Module\W
 
         foreach ($possible_hooks as $possible_hook) {
             $hook_name = $possible_hook["name"];
+            if(!$this->stringStartsWith($hook_name, "display")){
+                continue;
+            }
             if (strpos(strtolower($hook_name), "admin") !== false) {
                 continue;
             }
-            if ($possible_hook["description"] != "") {
+            if (strpos(strtolower($hook_name), "backoffice") !== false) {
+                continue;
+            }
+            if (array_key_exists("description", $possible_hook) && $possible_hook["description"] != "") {
                 $hook_name .= " - " . $possible_hook["description"];
             }
             $hook_option = array(
@@ -391,23 +404,35 @@ class Ebayfeedback extends Module implements PrestaShop\PrestaShop\Core\Module\W
 
 
         $form_values = array(
-            'EBAYFEEDBACK_ACTIVE' => Configuration::get('EBAYFEEDBACK_ACTIVE', null, null, null, false),
-            'EBAYFEEDBACK_BORDER' => Configuration::get('EBAYFEEDBACK_BORDER', null, null, null, false),
-            'EBAYFEEDBACK_AUTH_KEY' => Configuration::get('EBAYFEEDBACK_AUTH_KEY', null, null, null, 'AgAAAA**AQAAAA**aAAAAA**8GJzXw**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wAlYukDJWDpAidj6x9nY+seQ**19YCAA**AAMAAA**M6UYDUww3zomvlEK22Ikqdc5zZLJ7jjiQ+6GduJg3G5/IVdLHk/gxPOnoj3vJz1Iz0vyio2r9tTZARRpM3zi32EJ1W8dNomV7UvpDcGnTDeNq1X7gsBA2iSUf6l0zGG3pDFJeSIveDupYa+VfUa0smRCN2Wqkoh/y3lpr7lGbE6qzfHczrFTP9FV440V3ZTd32rl+QVMqsNAHNDKHhWnP6v3CjRLMIU8z4g0eXLvwX4rslY2y43WSbO2P/tyDpTN3ZFu/ryTalvK3ZTI+OsIM/ZrLfHkzOmDF6dBhGBkNWvs+K9tu9yIcsMirohCYZ0U8rne8ji9FcOVsutM/kIkNSTolshN1rnXsyfqt5giuVO4Bx3dcVBBO9o1eCSKumn2PhL4ene1aAAQfrC6dZnb6NZut/CZ5DPj/VnTtxtIWFG0x0fp2HLwXK8bC9pQY9xU6T7p3x5bwmXzvW+ewJK7XPk1MswFZdqEYdtKWkucykr0SbbxJc4Jo7y2dCBQr2fcr2A1lW6Yp8943+v4GDrFN3jUBEqO1jNbmdpfJP034UraQ9WWyfrAaUTqQBOGeQXSDtlE+pz3nGmxV6v4+KDgtYYZzrdGp40hGy8dyqiORYngSlauskeORwgNbbRKeqLRHvQNo+3u68mUK0It/leBch8K1992O0g84LOS0jOiAvZwwQPlha2wGbDMLZyQOBVDZa5D89b8LxNVO3iKVHu63yp0Eu9aM8qtU5MJGWUKzGzn9alK7O601xIEiFqEag+0'),
-            'EBAYFEEDBACK_CACHE' => Configuration::get('EBAYFEEDBACK_CACHE', null, null, null, true),
-            'EBAYFEEDBACK_STARSIZE' => Configuration::get("EBAYFEEDBACK_STARSIZE", null, null, null, 18),
-            'EBAYFEEDBACK_TRANSPARENT' => Configuration::get("EBAYFEEDBACK_TRANSPARENT", null, null, null, true),
-            'EBAYFEEDBACK_BGCOLOR' => Configuration::get("EBAYFEEDBACK_BGCOLOR", null, null, null, "#ffffff"),
-            'EBAYFEEDBACK_MAXWIDTH' => Configuration::get("EBAYFEEDBACK_MAXWIDTH", null, null, null, 500),
-            'EBAYFEEDBACK_COMMENTS' => Configuration::get("EBAYFEEDBACK_COMMENTS", null, null, null, true),
-            'EBAYFEEDBACK_VALIDATED' => Configuration::get("EBAYFEEDBACK_VALIDATED", null, null, null, "false")
+            'EBAYFEEDBACK_ACTIVE' => Configuration::hasKey('EBAYFEEDBACK_ACTIVE') ? Configuration::get('EBAYFEEDBACK_ACTIVE') : false,
+            'EBAYFEEDBACK_BORDER' => Configuration::hasKey('EBAYFEEDBACK_BORDER') ? Configuration::get('EBAYFEEDBACK_BORDER') : false,
+            'EBAYFEEDBACK_AUTH_KEY' => Configuration::hasKey('EBAYFEEDBACK_AUTH_KEY') ? Configuration::get('EBAYFEEDBACK_AUTH_KEY') : 'AgAAAA**AQAAAA**aAAAAA**8GJzXw**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wAlYukDJWDpAidj6x9nY+seQ**19YCAA**AAMAAA**M6UYDUww3zomvlEK22Ikqdc5zZLJ7jjiQ+6GduJg3G5/IVdLHk/gxPOnoj3vJz1Iz0vyio2r9tTZARRpM3zi32EJ1W8dNomV7UvpDcGnTDeNq1X7gsBA2iSUf6l0zGG3pDFJeSIveDupYa+VfUa0smRCN2Wqkoh/y3lpr7lGbE6qzfHczrFTP9FV440V3ZTd32rl+QVMqsNAHNDKHhWnP6v3CjRLMIU8z4g0eXLvwX4rslY2y43WSbO2P/tyDpTN3ZFu/ryTalvK3ZTI+OsIM/ZrLfHkzOmDF6dBhGBkNWvs+K9tu9yIcsMirohCYZ0U8rne8ji9FcOVsutM/kIkNSTolshN1rnXsyfqt5giuVO4Bx3dcVBBO9o1eCSKumn2PhL4ene1aAAQfrC6dZnb6NZut/CZ5DPj/VnTtxtIWFG0x0fp2HLwXK8bC9pQY9xU6T7p3x5bwmXzvW+ewJK7XPk1MswFZdqEYdtKWkucykr0SbbxJc4Jo7y2dCBQr2fcr2A1lW6Yp8943+v4GDrFN3jUBEqO1jNbmdpfJP034UraQ9WWyfrAaUTqQBOGeQXSDtlE+pz3nGmxV6v4+KDgtYYZzrdGp40hGy8dyqiORYngSlauskeORwgNbbRKeqLRHvQNo+3u68mUK0It/leBch8K1992O0g84LOS0jOiAvZwwQPlha2wGbDMLZyQOBVDZa5D89b8LxNVO3iKVHu63yp0Eu9aM8qtU5MJGWUKzGzn9alK7O601xIEiFqEag+0',
+            'EBAYFEEDBACK_CACHE' => Configuration::hasKey('EBAYFEEDBACK_CACHE') ? Configuration::get('EBAYFEEDBACK_CACHE') : true,
+            'EBAYFEEDBACK_STARSIZE' => Configuration::hasKey('EBAYFEEDBACK_STARSIZE') ? Configuration::get("EBAYFEEDBACK_STARSIZE") : 18,
+            'EBAYFEEDBACK_TRANSPARENT' => Configuration::hasKey('EBAYFEEDBACK_TRANSPARENT') ? Configuration::get("EBAYFEEDBACK_TRANSPARENT") : true,
+            'EBAYFEEDBACK_BGCOLOR' => Configuration::hasKey('EBAYFEEDBACK_BGCOLOR') ? Configuration::get("EBAYFEEDBACK_BGCOLOR") :  "#ffffff",
+            'EBAYFEEDBACK_MAXWIDTH' => Configuration::hasKey('EBAYFEEDBACK_MAXWIDTH') ? Configuration::get("EBAYFEEDBACK_MAXWIDTH") : 500,
+            'EBAYFEEDBACK_COMMENTS' => Configuration::hasKey('EBAYFEEDBACK_COMMENTS') ? Configuration::get("EBAYFEEDBACK_COMMENTS") : true,
+            'EBAYFEEDBACK_VALIDATED' => Configuration::hasKey('EBAYFEEDBACK_VALIDATED') ? Configuration::get("EBAYFEEDBACK_VALIDATED") : "false"
         );
         $possible_hooks = $this->getPossibleHooksList();
         foreach ($possible_hooks as $possible_hook) {
-            if (strpos(strtolower($possible_hook["name"]), "admin") !== false) {
+            $hook_name = $possible_hook["name"];
+            if(!$this->stringStartsWith($hook_name, "display")){
                 continue;
             }
-            $form_values['EBAYFEEDBACK_TEST_' . $possible_hook["id_hook"]] = $possible_hook["registered"] ? "on" : null;
+            if (strpos(strtolower($hook_name), "admin") !== false) {
+                continue;
+            }
+            if (strpos(strtolower($hook_name), "backoffice") !== false) {
+                continue;
+            }
+            if(array_key_exists("registered", $possible_hook)){
+                $registered = $possible_hook["registered"];
+            } else {
+                $registered = $this->isRegisteredInHook($possible_hook["name"]);
+            }
+            $form_values['EBAYFEEDBACK_TEST_' . $possible_hook["id_hook"]] = $registered ? "on" : null;
         }
         $form_values['EBAYFEEDBACK_TEST_' . ((int)Hook::getIdByName("Header", true))] = $this->isRegisteredInHook("Header") ? "on" : null;
         return $form_values;
@@ -499,6 +524,16 @@ class Ebayfeedback extends Module implements PrestaShop\PrestaShop\Core\Module\W
          $this->context->controller->addCSS($this->_path . '/views/css/front.css');
      }
 
+     public function hookDisplayHeader()
+     {
+    //     if (!Configuration::get('EBAYFEEDBACK_ACTIVE')) {
+    //         return;
+    //     }
+
+         Media::addJsDef(array('ebayfeedback' => array('feedback_url' => Context::getContext()->link->getModuleLink('ebayfeedback', 'ebayfeedback'))));
+         $this->context->controller->addJS($this->_path . '/views/js/front.js');
+         $this->context->controller->addCSS($this->_path . '/views/css/front.css');
+     }
     // public function hookDisplayFooter()
     // {
     //     return "Hallo";

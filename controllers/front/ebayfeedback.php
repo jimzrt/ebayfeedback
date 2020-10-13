@@ -2,6 +2,19 @@
 
 class EbayfeedbackEbayfeedbackModuleFrontController extends ModuleFrontController
 {
+
+    // Tools::formatDateStr from prestashop develop branch
+    public function formatDateStr($date_str, $full = false)
+    {
+        $time = strtotime($date_str);
+        $context = Context::getContext();
+        $date_format = ($full ? $context->language->date_format_full : $context->language->date_format_lite);
+        $date = date($date_format, $time);
+
+        return $date;
+    }
+
+
     public function initContent()
     {
         parent::initContent();
@@ -16,9 +29,8 @@ class EbayfeedbackEbayfeedbackModuleFrontController extends ModuleFrontControlle
 
         $response_file = _PS_MODULE_DIR_ . $this->module->name . '/response.xml';
 
-        if (file_exists($response_file) && Configuration::get('EBAYFEEDBACK_CACHE') && !Tools::getIsset('authKey') && time() - Configuration::get('EBAYFEEDBACK_LASTCACHE') <= 24*60*60) {
+        if (file_exists($response_file) && Configuration::get('EBAYFEEDBACK_CACHE') && !Tools::getIsset('authKey') && time() - Configuration::get('EBAYFEEDBACK_LASTCACHE') <= 24 * 60 * 60) {
             $response = file_get_contents($response_file);
-
         } else {
 
             if (Tools::getIsset('authKey')) {
@@ -55,8 +67,6 @@ class EbayfeedbackEbayfeedbackModuleFrontController extends ModuleFrontControlle
             //$feedback->asXml('response.xml');
 
             Configuration::updateValue('EBAYFEEDBACK_LASTCACHE', time());
-
-
         }
 
         $feedback = new SimpleXMLElement($response);
@@ -91,7 +101,7 @@ class EbayfeedbackEbayfeedbackModuleFrontController extends ModuleFrontControlle
         $feedback_comments = array();
         //  count($feedback->FeedbackDetailArray->FeedbackDetail)
         for ($i = 0; $i < 10; $i++) {
-            $feedback_comments[] = array("type" => (string)$feedback->FeedbackDetailArray->FeedbackDetail[$i]->CommentType, "time" => Tools::formatDateStr((string)$feedback->FeedbackDetailArray->FeedbackDetail[$i]->CommentTime, true), "text" => (string)$feedback->FeedbackDetailArray->FeedbackDetail[$i]->CommentText);
+            $feedback_comments[] = array("type" => (string)$feedback->FeedbackDetailArray->FeedbackDetail[$i]->CommentType, "time" => $this->formatDateStr((string)$feedback->FeedbackDetailArray->FeedbackDetail[$i]->CommentTime, true), "text" => (string)$feedback->FeedbackDetailArray->FeedbackDetail[$i]->CommentText);
         }
 
         $this->context->smarty->assign([
@@ -107,11 +117,20 @@ class EbayfeedbackEbayfeedbackModuleFrontController extends ModuleFrontControlle
             'feedback_bgColor' => Configuration::get('EBAYFEEDBACK_BGCOLOR'),
             'feedback_maxWidth' => Configuration::get('EBAYFEEDBACK_MAXWIDTH'),
             'feedback_show_comments' => Configuration::get('EBAYFEEDBACK_COMMENTS'),
-           // 'feedback_lastCache' => Configuration::get('EBAYFEEDBACK_LASTCACHE')
+            // 'feedback_lastCache' => Configuration::get('EBAYFEEDBACK_LASTCACHE')
 
         ]);
 
         //http_response_code(400);
-        $this->setTemplate('module:ebayfeedback/views/templates/front/ebayfeedback.tpl');
+        if (Tools::version_compare(_PS_VERSION_, '1.7', '>=')) {
+
+            $this->setTemplate('module:ebayfeedback/views/templates/front/ebayfeedback.tpl');
+
+        } else {
+
+            header('Content-Type: text/html');
+            die($this->context->smarty->fetch(_PS_MODULE_DIR_ . 'ebayfeedback/views/templates/front/ebayfeedback.tpl'));
+
+        }
     }
 }
