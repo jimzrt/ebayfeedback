@@ -146,7 +146,7 @@ class EbayfeedbackEbayfeedbackModuleFrontController extends ModuleFrontControlle
         }
         $feedback_comments = [];
         //  count($feedback->FeedbackDetailArray->FeedbackDetail)
-        for ($i = 0; $i < 5; ++$i) {
+        for ($i = 0; $i < count($feedback['comments']); ++$i) {
             $feedback_comments[] = [
                 'time' => $this->formatDateStr($feedback['comments'][$i]['date'], false),
                 'text' => $feedback['comments'][$i]['text'],
@@ -167,6 +167,7 @@ class EbayfeedbackEbayfeedbackModuleFrontController extends ModuleFrontControlle
             'feedback_bgColor' => Configuration::get('EBAYFEEDBACK_BGCOLOR'),
             'feedback_maxWidth' => Configuration::get('EBAYFEEDBACK_MAXWIDTH'),
             'feedback_show_comments' => Configuration::get('EBAYFEEDBACK_COMMENTS'),
+            'feedback_currentHook' => Tools::getValue('currentHook')
             // 'feedback_lastCache' => Configuration::get('EBAYFEEDBACK_LASTCACHE')
         ]);
 

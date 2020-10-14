@@ -23,7 +23,6 @@
 *  International Registered Trademark & Property of PrestaShop SA
 *}
 <div class="feedback_result">
-    <p>test</p>
     <div class="spinner">
         <div class="double-bounce1"></div>
         <div class="double-bounce2"></div>

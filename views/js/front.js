@@ -27,32 +27,50 @@
  */
 
 function select_feedback(elem, index) {
-  elem.parentNode.parentNode.previousElementSibling.querySelector(
-    ".feedback_slider"
-  ).style.left = index * -100 + "%";
-  elem.parentNode
-    .querySelector(".feedback_dot_selected")
-    .classList.remove("feedback_dot_selected");
+    //indexMap.set(elem.parentNode, index);
+    elem.parentNode.parentNode.previousElementSibling.querySelector(".feedback_slider").style.left = index * -100 + "%";
+    elem.parentNode.querySelector(".feedback_dot_selected").classList.remove("feedback_dot_selected");
 
-  elem.classList.add("feedback_dot_selected");
+    elem.classList.add("feedback_dot_selected");
+}
+
+function get_feedback_index(elem) {
+    return (
+        Math.abs(
+            elem.parentNode.parentNode.previousElementSibling.querySelector(".feedback_slider").style.left.slice(0, -1)
+        ) / 100
+    );
+}
+
+function select_feedback_next(elem) {
+    currIndex = get_feedback_index(elem);
+    newIndex = currIndex + 1;
+    if (newIndex == elem.parentNode.querySelectorAll(".feedback_dot").length) {
+        newIndex = 0;
+    }
+    select_feedback($(elem).parent().children()[newIndex + 1], newIndex);
+}
+
+function select_feedback_prev(elem) {
+    currIndex = get_feedback_index(elem);
+    newIndex = currIndex - 1;
+    if (newIndex < 0) {
+        newIndex = elem.parentNode.querySelectorAll(".feedback_dot").length - 1;
+    }
+    select_feedback($(elem).parent().children()[newIndex + 1], newIndex);
 }
 
 $(function () {
-  $(".feedback_result").load(ebayfeedback.feedback_url, function (
-    response,
-    status,
-    xhr
-  ) {
-    if (status == "error") {
-      // var msg = "Sorry but there was an error: ";
-      // $("#feedback_result").html( msg + xhr.status + " " + xhr.statusText );
-      $(".feedback_result").empty();
-      return;
-    }
-    document.querySelectorAll(".full-stars").forEach(function (stars) {
-      //trigger render for transition to take
-      stars.clientHeight;
-      stars.style.width = stars.getAttribute("data-width");
+    $(".feedback_result").load(ebayfeedback.feedback_url, function (response, status, xhr) {
+        if (status == "error") {
+            // Todo: debug error message
+            $(".feedback_result").empty();
+            return;
+        }
+        document.querySelectorAll(".full-stars").forEach(function (stars) {
+            //trigger render for transition to take
+            stars.clientHeight;
+            stars.style.width = stars.getAttribute("data-width");
+        });
     });
-  });
 });

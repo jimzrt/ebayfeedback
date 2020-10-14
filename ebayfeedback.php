@@ -57,7 +57,7 @@ class Ebayfeedback extends Module
     {
         $params;
         if ($this->stringStartsWith(Tools::strtolower($func), 'hookdisplay')) {
-            return $this->renderWidget();
+            return $this->renderWidget($func);
         }
     }
 
@@ -590,10 +590,11 @@ class Ebayfeedback extends Module
     // }
 
     //public function renderWidget($hookName, array $configuration)
-    public function renderWidget()
+    public function renderWidget($hookName)
     {
         $this->context->smarty->assign([
             'feedback_url' => Context::getContext()->link->getModuleLink('ebayfeedback', 'ebayfeedback'),
+            'currentHook' => $hookName
         ]);
 
         return $this->display(__FILE__, 'dummy.tpl');
