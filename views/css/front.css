@@ -364,5 +364,9 @@ hr.style14 {
 }
 
 .feedback_cell {
-  flex: 1 1 0;
+  flex: 1 1 75px;
+}
+
+.feeback_counts {
+  font-weight: bold;
 }
