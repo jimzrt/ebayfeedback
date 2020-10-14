@@ -371,7 +371,7 @@ hr.style14 {
     font-weight: bold;
 }
 
-.arrow {
+.feedback_arrow {
     border: solid gray;
     border-width: 0 3px 3px 0;
     display: inline-block;
@@ -381,12 +381,12 @@ hr.style14 {
     cursor: pointer;
 }
 
-.right {
+.feedback_right {
     transform: rotate(-45deg);
     -webkit-transform: rotate(-45deg);
 }
 
-.left {
+.feedback_left {
     transform: rotate(135deg);
     -webkit-transform: rotate(135deg);
 }

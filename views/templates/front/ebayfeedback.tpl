@@ -118,7 +118,7 @@ letter-spacing: 0.1em;
                 </div>
                 <div class="dots_ctr" style="width: 100%">
                     <div class="dots">
-                        <i class="arrow left" onclick="select_feedback_prev(this)"></i>{foreach from=$feedback_comments item=feedback_comment name=dots}<span onclick="select_feedback(this,{$smarty.foreach.dots.index|escape:'htmlall':'UTF-8'});" class="feedback_dot{if $smarty.foreach.dots.index == 0} feedback_dot_selected{/if}"></span>{/foreach}<i class="arrow right" onclick="select_feedback_next(this)"></i>
+                        <i class="feedback_arrow feedback_left" onclick="select_feedback_prev(this)"></i>{foreach from=$feedback_comments item=feedback_comment name=dots}<span onclick="select_feedback(this,{$smarty.foreach.dots.index|escape:'htmlall':'UTF-8'});" class="feedback_dot{if $smarty.foreach.dots.index == 0} feedback_dot_selected{/if}"></span>{/foreach}<i class="feedback_arrow feedback_right" onclick="select_feedback_next(this)"></i>
                     </div>
                 </div>
             </div>
