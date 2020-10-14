@@ -55,9 +55,10 @@ class Ebayfeedback extends Module
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
     }
 
-    function __call($func, $params){
-       
-        if($this->stringStartsWith(strtolower($func), "hookdisplay")){
+    function __call($func, $params)
+    {
+
+        if ($this->stringStartsWith(strtolower($func), "hookdisplay")) {
             return $this->renderWidget($func, $params);
         }
     }
@@ -123,7 +124,7 @@ class Ebayfeedback extends Module
         // var_dump("footer: " . $this->isRegisteredInHook("displayFooter"));
         // var_dump(Hook::getIdByName("displayHeader", true));
         // var_dump(Hook::getIdByName("Header", true));
-        
+
         return $output . $this->renderForm();
     }
 
@@ -170,7 +171,7 @@ class Ebayfeedback extends Module
 
         foreach ($possible_hooks as $possible_hook) {
             $hook_name = $possible_hook["name"];
-            if(!$this->stringStartsWith($hook_name, "display")){
+            if (!$this->stringStartsWith($hook_name, "display")) {
                 continue;
             }
             if (strpos(strtolower($hook_name), "admin") !== false) {
@@ -209,7 +210,7 @@ class Ebayfeedback extends Module
                         'name' => 'EBAYFEEDBACK_ACTIVE',
                         'is_bool' => true,
                         'disabled' => !$validated,
-                        'desc' => $this->l('Activate module - Auth\'n\'Auth key must be validated'),
+                        'desc' => $this->l('Activate module - username must be validated'),
                         'values' => array(
                             array(
                                 'id' => 'active_on',
@@ -224,12 +225,12 @@ class Ebayfeedback extends Module
                         ),
                     ),
                     array(
-                        'id' => 'EBAYFEEDBACK_AUTH_KEY',
+                        'id' => 'EBAYFEEDBACK_USERNAME',
                         'col' => 3,
                         'type' => 'textbutton',
-                        'desc' => $this->l('Enter eBay Auth\'n\'Auth Key'),
-                        'name' => 'EBAYFEEDBACK_AUTH_KEY',
-                        'label' => $this->l('Auth\'n\'Auth Key'),
+                        'desc' => $this->l('Enter ebay username'),
+                        'name' => 'EBAYFEEDBACK_USERNAME',
+                        'label' => $this->l('username'),
                         'button' => array(
                             'label' => 'Validate',
                             'class' => 'EBAYFEEDBACK_validate_button btn-primary' . ($validated ? " hidden" : ""),
@@ -317,7 +318,7 @@ class Ebayfeedback extends Module
                         'type' => 'color',
                         'label' => $this->l('Background Color'),
                         'desc' => $this->l('Transparent Background needs to be turned off'),
-                        'name' => 'EBAYFEEDBACK_BGCOLOR'						
+                        'name' => 'EBAYFEEDBACK_BGCOLOR'
                     ),
                     array(
                         'type' => 'select',
@@ -406,7 +407,7 @@ class Ebayfeedback extends Module
         $form_values = array(
             'EBAYFEEDBACK_ACTIVE' => Configuration::hasKey('EBAYFEEDBACK_ACTIVE') ? Configuration::get('EBAYFEEDBACK_ACTIVE') : false,
             'EBAYFEEDBACK_BORDER' => Configuration::hasKey('EBAYFEEDBACK_BORDER') ? Configuration::get('EBAYFEEDBACK_BORDER') : false,
-            'EBAYFEEDBACK_AUTH_KEY' => Configuration::hasKey('EBAYFEEDBACK_AUTH_KEY') ? Configuration::get('EBAYFEEDBACK_AUTH_KEY') : 'AgAAAA**AQAAAA**aAAAAA**8GJzXw**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wAlYukDJWDpAidj6x9nY+seQ**19YCAA**AAMAAA**M6UYDUww3zomvlEK22Ikqdc5zZLJ7jjiQ+6GduJg3G5/IVdLHk/gxPOnoj3vJz1Iz0vyio2r9tTZARRpM3zi32EJ1W8dNomV7UvpDcGnTDeNq1X7gsBA2iSUf6l0zGG3pDFJeSIveDupYa+VfUa0smRCN2Wqkoh/y3lpr7lGbE6qzfHczrFTP9FV440V3ZTd32rl+QVMqsNAHNDKHhWnP6v3CjRLMIU8z4g0eXLvwX4rslY2y43WSbO2P/tyDpTN3ZFu/ryTalvK3ZTI+OsIM/ZrLfHkzOmDF6dBhGBkNWvs+K9tu9yIcsMirohCYZ0U8rne8ji9FcOVsutM/kIkNSTolshN1rnXsyfqt5giuVO4Bx3dcVBBO9o1eCSKumn2PhL4ene1aAAQfrC6dZnb6NZut/CZ5DPj/VnTtxtIWFG0x0fp2HLwXK8bC9pQY9xU6T7p3x5bwmXzvW+ewJK7XPk1MswFZdqEYdtKWkucykr0SbbxJc4Jo7y2dCBQr2fcr2A1lW6Yp8943+v4GDrFN3jUBEqO1jNbmdpfJP034UraQ9WWyfrAaUTqQBOGeQXSDtlE+pz3nGmxV6v4+KDgtYYZzrdGp40hGy8dyqiORYngSlauskeORwgNbbRKeqLRHvQNo+3u68mUK0It/leBch8K1992O0g84LOS0jOiAvZwwQPlha2wGbDMLZyQOBVDZa5D89b8LxNVO3iKVHu63yp0Eu9aM8qtU5MJGWUKzGzn9alK7O601xIEiFqEag+0',
+            'EBAYFEEDBACK_USERNAME' => Configuration::hasKey('EBAYFEEDBACK_USERNAME') ? Configuration::get('EBAYFEEDBACK_USERNAME') : 'furs-and-more-germany',
             'EBAYFEEDBACK_CACHE' => Configuration::hasKey('EBAYFEEDBACK_CACHE') ? Configuration::get('EBAYFEEDBACK_CACHE') : true,
             'EBAYFEEDBACK_STARSIZE' => Configuration::hasKey('EBAYFEEDBACK_STARSIZE') ? Configuration::get("EBAYFEEDBACK_STARSIZE") : 18,
             'EBAYFEEDBACK_TRANSPARENT' => Configuration::hasKey('EBAYFEEDBACK_TRANSPARENT') ? Configuration::get("EBAYFEEDBACK_TRANSPARENT") : true,
@@ -418,7 +419,7 @@ class Ebayfeedback extends Module
         $possible_hooks = $this->getPossibleHooksList();
         foreach ($possible_hooks as $possible_hook) {
             $hook_name = $possible_hook["name"];
-            if(!$this->stringStartsWith($hook_name, "display")){
+            if (!$this->stringStartsWith($hook_name, "display")) {
                 continue;
             }
             if (strpos(strtolower($hook_name), "admin") !== false) {
@@ -427,7 +428,7 @@ class Ebayfeedback extends Module
             if (strpos(strtolower($hook_name), "backoffice") !== false) {
                 continue;
             }
-            if(array_key_exists("registered", $possible_hook)){
+            if (array_key_exists("registered", $possible_hook)) {
                 $registered = $possible_hook["registered"];
             } else {
                 $registered = $this->isRegisteredInHook($possible_hook["name"]);
@@ -513,27 +514,27 @@ class Ebayfeedback extends Module
     // /**
     //  * Add the CSS & JavaScript files you want to be added on the FO.
     //  */
-     public function hookHeader()
-     {
-    //     if (!Configuration::get('EBAYFEEDBACK_ACTIVE')) {
-    //         return;
-    //     }
+    public function hookHeader()
+    {
+        //     if (!Configuration::get('EBAYFEEDBACK_ACTIVE')) {
+        //         return;
+        //     }
 
-         Media::addJsDef(array('ebayfeedback' => array('feedback_url' => Context::getContext()->link->getModuleLink('ebayfeedback', 'ebayfeedback'))));
-         $this->context->controller->addJS($this->_path . '/views/js/front.js');
-         $this->context->controller->addCSS($this->_path . '/views/css/front.css');
-     }
+        Media::addJsDef(array('ebayfeedback' => array('feedback_url' => Context::getContext()->link->getModuleLink('ebayfeedback', 'ebayfeedback'))));
+        $this->context->controller->addJS($this->_path . '/views/js/front.js');
+        $this->context->controller->addCSS($this->_path . '/views/css/front.css');
+    }
 
-     public function hookDisplayHeader()
-     {
-    //     if (!Configuration::get('EBAYFEEDBACK_ACTIVE')) {
-    //         return;
-    //     }
+    public function hookDisplayHeader()
+    {
+        //     if (!Configuration::get('EBAYFEEDBACK_ACTIVE')) {
+        //         return;
+        //     }
 
-         Media::addJsDef(array('ebayfeedback' => array('feedback_url' => Context::getContext()->link->getModuleLink('ebayfeedback', 'ebayfeedback'))));
-         $this->context->controller->addJS($this->_path . '/views/js/front.js');
-         $this->context->controller->addCSS($this->_path . '/views/css/front.css');
-     }
+        Media::addJsDef(array('ebayfeedback' => array('feedback_url' => Context::getContext()->link->getModuleLink('ebayfeedback', 'ebayfeedback'))));
+        $this->context->controller->addJS($this->_path . '/views/js/front.js');
+        $this->context->controller->addCSS($this->_path . '/views/css/front.css');
+    }
     // public function hookDisplayFooter()
     // {
     //     return "Hallo";
@@ -560,7 +561,7 @@ class Ebayfeedback extends Module
         //Media::addJsDef(array('ebayfeedback' => array('feedback_url' => Context::getContext()->link->getModuleLink('ebayfeedback', 'ebayfeedback'))));
         //$this->context->controller->addJS($this->_path . '/views/js/front.js');
         //$this->context->controller->addCSS($this->_path . '/views/css/front.css');
-        
+
         // $this->context->controller->registerJavascript(
         //     $this->name,
         //     '/views/js/front.js',

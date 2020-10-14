@@ -27,7 +27,7 @@
  */
 
 $(function () {
-  document.getElementById("EBAYFEEDBACK_AUTH_KEY").oninput = function () {
+  document.getElementById("EBAYFEEDBACK_USERNAME").oninput = function () {
     document.getElementById("EBAYFEEDBACK_ACTIVE_off").click();
     document.getElementById("EBAYFEEDBACK_ACTIVE_on").disabled = true;
     document.getElementById("EBAYFEEDBACK_ACTIVE_off").disabled = true;
@@ -50,7 +50,7 @@ function validate() {
   $.ajax({
     method: "POST",
     url: ebayfeedback.feedback_url,
-    data: { authKey: document.getElementById("EBAYFEEDBACK_AUTH_KEY").value },
+    data: { userName: document.getElementById("EBAYFEEDBACK_USERNAME").value },
   })
     .done(function () {
         $.growl.notice({
@@ -67,7 +67,7 @@ function validate() {
     })
     .fail(function (msg) {  
       try {
-        errorMessage = JSON.parse(msg.responseText).Errors.LongMessage
+        errorMessage = JSON.parse(msg.responseText).message
       } catch(e) {
         errorMessage = "Unknown Error!"
       }

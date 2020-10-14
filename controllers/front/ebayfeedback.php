@@ -27,35 +27,33 @@ class EbayfeedbackEbayfeedbackModuleFrontController extends ModuleFrontControlle
             die(Tools::jsonEncode("ebay feedback module is not active!"));
         }
 
-        $response_file = _PS_MODULE_DIR_ . $this->module->name . '/response.xml';
+        if (Tools::getIsset('userName')) {
+            $userName = Tools::getValue('userName');
+        } else {
+            $userName = Configuration::get('EBAYFEEDBACK_USERNAME');
+        }
+
+        $response_file = _PS_MODULE_DIR_ . $this->module->name . '/response_' . $userName . '.json';
 
         if (file_exists($response_file) && Configuration::get('EBAYFEEDBACK_CACHE') && !Tools::getIsset('authKey') && time() - Configuration::get('EBAYFEEDBACK_LASTCACHE') <= 24 * 60 * 60) {
             $response = file_get_contents($response_file);
         } else {
 
-            if (Tools::getIsset('authKey')) {
-                $authKey = Tools::getValue('authKey');
-            } else {
-                $authKey = Configuration::get('EBAYFEEDBACK_AUTH_KEY');
-            }
+
 
             $curl = curl_init();
 
             curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://api.ebay.com/ws/api.dll",
+                CURLOPT_URL => "https://ebay.jamestop.duckdns.org/EbayFeedback/?userName=" . $userName,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => "",
                 CURLOPT_MAXREDIRS => 10,
                 CURLOPT_TIMEOUT => 0,
                 CURLOPT_FOLLOWLOCATION => true,
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<GetFeedbackRequest xmlns=\"urn:ebay:apis:eBLBaseComponents\"><RequesterCredentials><eBayAuthToken>" . $authKey . "</eBayAuthToken></RequesterCredentials><ErrorLanguage>en_US</ErrorLanguage><WarningLevel>High</WarningLevel><FeedbackType>FeedbackReceivedAsSeller</FeedbackType><DetailLevel>ReturnAll</DetailLevel><OutputSelector>FeedbackDetailArray</OutputSelector><OutputSelector>NegativeFeedbackPeriodArray</OutputSelector><OutputSelector>NeutralFeedbackPeriodArray</OutputSelector><OutputSelector>PositiveFeedbackPeriodArray</OutputSelector><OutputSelector>SellerRatingSummaryArray</OutputSelector></GetFeedbackRequest>",
+                CURLOPT_CUSTOMREQUEST => "GET",
                 CURLOPT_HTTPHEADER => array(
-                    "X-EBAY-API-CALL-NAME: GetFeedback",
-                    "X-EBAY-API-SITEID: 0",
-                    "X-EBAY-API-COMPATIBILITY-LEVEL: 967",
-                    "Content-Type: application/xml"
+                    "presta: 1"
                 ),
             ));
 
@@ -69,39 +67,65 @@ class EbayfeedbackEbayfeedbackModuleFrontController extends ModuleFrontControlle
             Configuration::updateValue('EBAYFEEDBACK_LASTCACHE', time());
         }
 
-        $feedback = new SimpleXMLElement($response);
 
-        $feedback_status = (string)$feedback->Ack;
-        if ($feedback_status != "Success") {
+        $feedback = json_decode($response, true);
+
+        // {
+        //     "comments": [
+        //         {
+        //             "date": "Oct 12, 2020",
+        //             "text": "Rasche Antwort und prompte Bezahlung. Perfekt! Filamentwerk_de sagt Danke!"
+        //         },
+        //         {
+        //             "date": "Oct 12, 2020",
+        //             "text": "Although described as lightweight the item is very heavy but looks good."
+        //         },
+        //         {
+        //             "date": "Oct 05, 2020",
+        //             "text": "all like description, very good comunication, delivery andexcellent seller"
+        //         },
+        //         {
+        //             "date": "Oct 05, 2020",
+        //             "text": "PERFECT SAGA MINK COAT! absolutely love it! AMAZING QUALITY! Soft fur, thank you"
+        //         },
+        //         {
+        //             "date": "Oct 05, 2020",
+        //             "text": "Simply Gorgeous!!! Super Fast Shipping!"
+        //         }
+        //     ],
+
+        // }
+
+        $feedback_status = $feedback["result"];
+        if ($feedback_status != "ok") {
             http_response_code(400);
             unlink($response_file);
             die(Tools::jsonEncode($feedback));
         }
-        if (Tools::getIsset('authKey')) {
+        if (Tools::getIsset('userName')) {
             die(Tools::jsonEncode("success"));
         }
 
 
 
-        $feedback_positve_count = (int)$feedback->FeedbackSummary->PositiveFeedbackPeriodArray->FeedbackPeriod[3]->Count;
-        $feedback_negative_count = (int)$feedback->FeedbackSummary->NegativeFeedbackPeriodArray->FeedbackPeriod[3]->Count;
-        $feedback_neutral_count = (int)$feedback->FeedbackSummary->NeutralFeedbackPeriodArray->FeedbackPeriod[3]->Count;
+        $feedback_positve_count = $feedback["sentiments"]["positive"];
+        $feedback_negative_count = $feedback["sentiments"]["negative"];
+        $feedback_neutral_count = $feedback["sentiments"]["neutral"];
 
-        $feedback_rating_obj = $feedback->FeedbackSummary->SellerRatingSummaryArray->AverageRatingSummary[0];
+        //$feedback_rating_obj = $feedback->FeedbackSummary->SellerRatingSummaryArray->AverageRatingSummary[0];
         $feedback_ratings = array();
         for ($i = 0; $i < 4; $i++) {
-            $feedback_rating = (float)$feedback_rating_obj->AverageRatingDetails[$i]->Rating;
-            $feedback_rating_percent = round(($feedback_rating / 5) * 100);
+            $feedback_rating_percent = $feedback["ratings"][$i]["rating"];
             //$feedback_rating_full = (int)$feedback_rating;
             //$feedback_rating_empty = 5 - $feedback_rating_full - (int)($feedback_rating_full != $feedback_rating);
             //$feedback_rating_half = round(($feedback_rating - $feedback_rating_full)*10);
 
-            $feedback_ratings[] = array("rating" => array("rating" => $feedback_rating, "feedback_rating_percent" => $feedback_rating_percent), "count" => (int)$feedback_rating_obj->AverageRatingDetails[$i]->RatingCount, "detail" => "ItemAsDescribed"); //(string)$feedback_rating_obj->AverageRatingDetails[$i]->RatingDetail);
+            $feedback_ratings[] = array("rating" => array("feedback_rating_percent" => $feedback_rating_percent), "count" => $feedback["ratings"][$i]["count"], "detail" => $feedback["ratings"][$i]["type"]); //(string)$feedback_rating_obj->AverageRatingDetails[$i]->RatingDetail);
         }
         $feedback_comments = array();
         //  count($feedback->FeedbackDetailArray->FeedbackDetail)
-        for ($i = 0; $i < 10; $i++) {
-            $feedback_comments[] = array("type" => (string)$feedback->FeedbackDetailArray->FeedbackDetail[$i]->CommentType, "time" => $this->formatDateStr((string)$feedback->FeedbackDetailArray->FeedbackDetail[$i]->CommentTime, true), "text" => (string)$feedback->FeedbackDetailArray->FeedbackDetail[$i]->CommentText);
+        for ($i = 0; $i < 5; $i++) {
+            $feedback_comments[] = array("time" => $this->formatDateStr($feedback["comments"][$i]["date"], false), "text" => $feedback["comments"][$i]["text"]);
         }
 
         $this->context->smarty->assign([
@@ -125,12 +149,10 @@ class EbayfeedbackEbayfeedbackModuleFrontController extends ModuleFrontControlle
         if (Tools::version_compare(_PS_VERSION_, '1.7', '>=')) {
 
             $this->setTemplate('module:ebayfeedback/views/templates/front/ebayfeedback.tpl');
-
         } else {
 
             header('Content-Type: text/html');
             die($this->context->smarty->fetch(_PS_MODULE_DIR_ . 'ebayfeedback/views/templates/front/ebayfeedback.tpl'));
-
         }
     }
 }
