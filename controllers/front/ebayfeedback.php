@@ -103,22 +103,22 @@ class EbayfeedbackEbayfeedbackModuleFrontController extends ModuleFrontControlle
 
         $feedback_ratings = [
             [
-                'rating' => $feedback['ratings'][0]['rating'],
+                'rating_percent' => $feedback['ratings'][0]['rating'],
                 'count' => $feedback['ratings'][0]['count'],
                 'detail' => $this->module->l("Item as described"),
             ],
             [
-                'rating' => $feedback['ratings'][1]['rating'],
+                'rating_percent' => $feedback['ratings'][1]['rating'],
                 'count' => $feedback['ratings'][1]['count'],
                 'detail' => $this->module->l("Communication"),
             ],
             [
-                'rating' => $feedback['ratings'][2]['rating'],
+                'rating_percent' => $feedback['ratings'][2]['rating'],
                 'count' => $feedback['ratings'][2]['count'],
                 'detail' => $this->module->l("Shipping time"),
             ],
             [
-                'rating' => $feedback['ratings'][3]['rating'],
+                'rating_percent' => $feedback['ratings'][3]['rating'],
                 'count' => $feedback['ratings'][3]['count'],
                 'detail' => $this->module->l("Shipping charges"),
             ],
@@ -128,16 +128,16 @@ class EbayfeedbackEbayfeedbackModuleFrontController extends ModuleFrontControlle
         for ($i = 0; $i < count($feedback['comments']); ++$i) {
             $sentiment = $feedback['comments'][$i]['sentiment'];
             if ($sentiment == "positive") {
-                $sentiment = $this->module->l("Positive");
+                $sentiment = "plus";
             } elseif ($sentiment == "neutral") {
-                $sentiment = $this->module->l("Neutral");
+                $sentiment = "disc";
             } else {
-                $sentiment = $this->module->l("Negative");
+                $sentiment = "minus";
             }
             $feedback_comments[] = [
                 'time' => $this->formatDateStr($feedback['comments'][$i]['date'], false),
                 'text' => $feedback['comments'][$i]['text'],
-                'sentiment' => $sentiment,
+                'sentiment_class' => $sentiment,
             ];
         }
 

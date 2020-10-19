@@ -236,7 +236,7 @@ class Ebayfeedback extends Module
                         'type' => 'textbutton',
                         'desc' => $this->l('Enter ebay username'),
                         'name' => 'EBAYFEEDBACK_USERNAME',
-                        'label' => $this->l('username'),
+                        'label' => $this->l('Username'),
                         'button' => [
                             'label' => 'Validate',
                             'class' => 'EBAYFEEDBACK_validate_button btn-primary' . ($validated ? ' hidden' : ''),

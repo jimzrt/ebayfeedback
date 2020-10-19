@@ -35,7 +35,7 @@
                         <div class="ratings" style="font-size: {$feedback_starsize|escape:'htmlall':'UTF-8'}pt;">
                             <div class="empty-stars"></div>
                             <div class="border-stars"></div>
-                            <div class="full-stars" data-width="{$feedback_rating.rating.feedback_rating_percent|escape:'htmlall':'UTF-8'}%"></div>
+                            <div class="full-stars" data-width="{$feedback_rating.rating_percent|escape:'htmlall':'UTF-8'}%"></div>
                         </div>
                     </div>
 
@@ -93,7 +93,7 @@
                         <li style="width: 230px; height: 72px">
                             <div class="feedback_row" style="flex-wrap: nowrap;">
                                 <div class="" style="margin-right:15px;">
-                                    <div class="icon icon-{if $feedback_comment.sentiment == "positive"}plus{elseif $feedback_comment.sentiment == "neutral"}disc{else}minus{/if}"></div>
+                                    <div class="icon icon-{$feedback_comment.sentiment_class|escape:'htmlall':'UTF-8'}"></div>
                                 </div>
                                 <div class="">
                                     <div class="fb_dtls">
