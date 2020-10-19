@@ -335,23 +335,23 @@ class Ebayfeedback extends Module
                             'query' => [
                                 [
                                     'id_option' => 300,
-                                    'name' => $this->l('300px'),
+                                    'name' => '300px',
                                 ],
                                 [
                                     'id_option' => 400,
-                                    'name' => $this->l('400px'),
+                                    'name' => '400px',
                                 ],
                                 [
                                     'id_option' => 500,
-                                    'name' => $this->l('500px'),
+                                    'name' => '500px',
                                 ],
                                 [
                                     'id_option' => 600,
-                                    'name' => $this->l('600px'),
+                                    'name' => '600px',
                                 ],
                                 [
                                     'id_option' => 1,
-                                    'name' => $this->l('Fullwidth'),
+                                    'name' => $this->l('full width'),
                                 ],
                             ],
                             'id' => 'id_option',
