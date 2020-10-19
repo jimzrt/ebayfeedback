@@ -24,14 +24,8 @@
     *}
     <div class="{if $feedback_showBorder}starcard{/if}" style="clear:both;background: {if $feedback_transparent}transparent{else}{$feedback_bgColor|escape:'htmlall':'UTF-8'}{/if};margin: auto;text-align:center;{if $feedback_maxWidth != 1}max-width: {$feedback_maxWidth|escape:'htmlall':'UTF-8'}px;{/if}padding: 10px;">
         <div class="starcontainer">
-            <h6 style="
-margin:10px 0px 10px 0px;
-font-size: 18px;
-color: #414141;
-font-weight: normal;
-letter-spacing: 0.1em;
-">
-                EBAY BEWERTUNGEN
+            <h6 class="feedback_heading">
+                {l s='Ebay Feedback' mod='ebayfeedback'}
             </h6>
             <div class="feedback_container">
                 {foreach from=$feedback_ratings item=feedback_rating}
@@ -75,18 +69,18 @@ letter-spacing: 0.1em;
                 </div>
                 <div class="feedback_row">
                     <div class="feedback_cell">
-                        Positiv
+                        {l s='Positive' mod='ebayfeedback'}
                     </div>
                     <div class="feedback_cell">
-                        Neutral
+                        {l s='Neutral' mod='ebayfeedback'}
                     </div>
                     <div class="feedback_cell">
-                        Negativ
+                        {l s='Negative' mod='ebayfeedback'}
                     </div>
                 </div>
                 <div class="feedback_row" style="padding-top: 15px;">
                     <div class="feedback_cell">
-                        Bewertungen der letzten 12 Monate
+                        {l s='Feedback from the last 12 months' mod='ebayfeedback'}
                     </div>
                 </div>
             </div>

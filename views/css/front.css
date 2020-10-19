@@ -390,3 +390,12 @@ hr.style14 {
     transform: rotate(135deg);
     -webkit-transform: rotate(135deg);
 }
+
+.feedback_heading {
+    margin: 10px 0px 10px 0px;
+    font-size: 18px;
+    color: #414141;
+    font-weight: normal;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}

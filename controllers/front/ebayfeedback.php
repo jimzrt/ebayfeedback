@@ -41,13 +41,9 @@ class EbayfeedbackEbayfeedbackModuleFrontController extends ModuleFrontControlle
     {
         parent::initContent();
 
-        // if (Tools::getIsset('authKey')) {
-        //     die(Tools::jsonEncode(Tools::getValue('authKey')));
-        // }
-
         if (!Configuration::get('EBAYFEEDBACK_ACTIVE') && !Tools::getIsset('userName')) {
             //Todo: only on debug
-            die(Tools::jsonEncode($this->l('ebay feedback module is not active!')));
+            die(Tools::jsonEncode($this->module->l('ebay feedback module is not active!')));
         }
 
         if (Tools::getIsset('userName')) {
@@ -58,7 +54,8 @@ class EbayfeedbackEbayfeedbackModuleFrontController extends ModuleFrontControlle
 
         $response_file = _PS_MODULE_DIR_ . $this->module->name . '/response_' . $userName . '.json';
 
-        if (file_exists($response_file) &&
+        if (
+            file_exists($response_file) &&
             Configuration::get('EBAYFEEDBACK_CACHE') &&
             !Tools::getIsset('userName') &&
             time() - Configuration::get('EBAYFEEDBACK_LASTCACHE') <= 24 * 60 * 60
@@ -84,38 +81,11 @@ class EbayfeedbackEbayfeedbackModuleFrontController extends ModuleFrontControlle
             curl_close($curl);
 
             file_put_contents($response_file, $response);
-            //$feedback->asXml('response.xml');
 
             Configuration::updateValue('EBAYFEEDBACK_LASTCACHE', time());
         }
 
         $feedback = json_decode($response, true);
-
-        // {
-        //     "comments": [
-        //         {
-        //             "date": "Oct 12, 2020",
-        //             "text": "Rasche Antwort und prompte Bezahlung. Perfekt! Filamentwerk_de sagt Danke!"
-        //         },
-        //         {
-        //             "date": "Oct 12, 2020",
-        //             "text": "Although described as lightweight the item is very heavy but looks good."
-        //         },
-        //         {
-        //             "date": "Oct 05, 2020",
-        //             "text": "all like description, very good comunication, delivery andexcellent seller"
-        //         },
-        //         {
-        //             "date": "Oct 05, 2020",
-        //             "text": "PERFECT SAGA MINK COAT! absolutely love it! AMAZING QUALITY! Soft fur, thank you"
-        //         },
-        //         {
-        //             "date": "Oct 05, 2020",
-        //             "text": "Simply Gorgeous!!! Super Fast Shipping!"
-        //         }
-        //     ],
-
-        // }
 
         $feedback_status = $feedback['result'];
         if ($feedback_status != 'ok') {
@@ -131,26 +101,43 @@ class EbayfeedbackEbayfeedbackModuleFrontController extends ModuleFrontControlle
         $feedback_negative_count = $feedback['sentiments']['negative'];
         $feedback_neutral_count = $feedback['sentiments']['neutral'];
 
-        //Todo: hard code detail types for localization
-        $feedback_ratings = [];
-        for ($i = 0; $i < 4; ++$i) {
-            $feedback_rating_percent = $feedback['ratings'][$i]['rating'];
-           
+        $feedback_ratings = [
+            [
+                'rating' => $feedback['ratings'][0]['rating'],
+                'count' => $feedback['ratings'][0]['count'],
+                'detail' => $this->module->l("Item as described"),
+            ],
+            [
+                'rating' => $feedback['ratings'][1]['rating'],
+                'count' => $feedback['ratings'][1]['count'],
+                'detail' => $this->module->l("Communication"),
+            ],
+            [
+                'rating' => $feedback['ratings'][2]['rating'],
+                'count' => $feedback['ratings'][2]['count'],
+                'detail' => $this->module->l("Shipping time"),
+            ],
+            [
+                'rating' => $feedback['ratings'][3]['rating'],
+                'count' => $feedback['ratings'][3]['count'],
+                'detail' => $this->module->l("Shipping charges"),
+            ],
+        ];
 
-            $feedback_ratings[] = [
-                'rating' => ['feedback_rating_percent' => $feedback_rating_percent],
-                'count' => $feedback['ratings'][$i]['count'],
-                'detail' => $feedback['ratings'][$i]['type']
-            ];
-        }
-
-        //Todo: switch on sentiment with hard coded values for localization
         $feedback_comments = [];
         for ($i = 0; $i < count($feedback['comments']); ++$i) {
+            $sentiment = $feedback['comments'][$i]['sentiment'];
+            if ($sentiment == "positive") {
+                $sentiment = $this->module->l("Positive");
+            } elseif ($sentiment == "neutral") {
+                $sentiment = $this->module->l("Neutral");
+            } else {
+                $sentiment = $this->module->l("Negative");
+            }
             $feedback_comments[] = [
                 'time' => $this->formatDateStr($feedback['comments'][$i]['date'], false),
                 'text' => $feedback['comments'][$i]['text'],
-                'sentiment' => $feedback['comments'][$i]['sentiment'],
+                'sentiment' => $sentiment,
             ];
         }
 
@@ -167,7 +154,7 @@ class EbayfeedbackEbayfeedbackModuleFrontController extends ModuleFrontControlle
             'feedback_bgColor' => Configuration::get('EBAYFEEDBACK_BGCOLOR'),
             'feedback_maxWidth' => Configuration::get('EBAYFEEDBACK_MAXWIDTH'),
             'feedback_show_comments' => Configuration::get('EBAYFEEDBACK_COMMENTS'),
-            'feedback_currentHook' => Tools::getValue('currentHook')
+            'feedback_currentHook' => Tools::getValue('currentHook'),
             // 'feedback_lastCache' => Configuration::get('EBAYFEEDBACK_LASTCACHE')
         ]);
 
