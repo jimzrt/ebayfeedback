@@ -46,7 +46,8 @@ class EbayfeedbackEbayfeedbackModuleFrontController extends ModuleFrontControlle
         // }
 
         if (!Configuration::get('EBAYFEEDBACK_ACTIVE') && !Tools::getIsset('userName')) {
-            die(Tools::jsonEncode('ebay feedback module is not active!'));
+            //Todo: only on debug
+            die(Tools::jsonEncode($this->l('ebay feedback module is not active!')));
         }
 
         if (Tools::getIsset('userName')) {
@@ -130,22 +131,21 @@ class EbayfeedbackEbayfeedbackModuleFrontController extends ModuleFrontControlle
         $feedback_negative_count = $feedback['sentiments']['negative'];
         $feedback_neutral_count = $feedback['sentiments']['neutral'];
 
-        //$feedback_rating_obj = $feedback->FeedbackSummary->SellerRatingSummaryArray->AverageRatingSummary[0];
+        //Todo: hard code detail types for localization
         $feedback_ratings = [];
         for ($i = 0; $i < 4; ++$i) {
             $feedback_rating_percent = $feedback['ratings'][$i]['rating'];
-            //$feedback_rating_full = (int)$feedback_rating;
-            //$feedback_rating_empty = 5 - $feedback_rating_full - (int)($feedback_rating_full != $feedback_rating);
-            //$feedback_rating_half = round(($feedback_rating - $feedback_rating_full)*10);
+           
 
             $feedback_ratings[] = [
                 'rating' => ['feedback_rating_percent' => $feedback_rating_percent],
                 'count' => $feedback['ratings'][$i]['count'],
-                'detail' => $feedback['ratings'][$i]['type'],
-            ]; //(string)$feedback_rating_obj->AverageRatingDetails[$i]->RatingDetail);
+                'detail' => $feedback['ratings'][$i]['type']
+            ];
         }
+
+        //Todo: switch on sentiment with hard coded values for localization
         $feedback_comments = [];
-        //  count($feedback->FeedbackDetailArray->FeedbackDetail)
         for ($i = 0; $i < count($feedback['comments']); ++$i) {
             $feedback_comments[] = [
                 'time' => $this->formatDateStr($feedback['comments'][$i]['date'], false),
